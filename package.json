@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "deploy": "aws cloudformation deploy --template-file ./template.json --stack-name aws-serverless-cicd-pipeline --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset"
+    "deploy": "aws cloudformation deploy --template-file ./template.json --stack-name aws-cicd-pipeline --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset"
   },
   "author": "Karl Eriksson <karl.eriksson@capgemini.com>",
   "devDependencies": {

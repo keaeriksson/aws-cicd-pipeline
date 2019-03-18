@@ -5,7 +5,7 @@
     "Repository": {
       "Type": "AWS::CodeCommit::Repository",
       "Properties": {
-        "RepositoryName": "app-repository"
+        "RepositoryName": "aws-cicd-app"
       }
     },
     "Bucket": {
@@ -32,7 +32,10 @@
             {
               "Effect": "Allow",
               "Principal": {
-                "Service": ["codepipeline.amazonaws.com"]
+                "Service": [
+                  "codepipeline.amazonaws.com",
+                  "codebuild.amazonaws.com"
+                ]
               },
               "Action": ["sts:AssumeRole"]
             }
@@ -73,13 +76,7 @@
                   "Effect": "Allow"
                 },
                 {
-                  "Action": [
-                    "codedeploy:CreateDeployment",
-                    "codedeploy:GetApplicationRevision",
-                    "codedeploy:GetDeployment",
-                    "codedeploy:GetDeploymentConfig",
-                    "codedeploy:RegisterApplicationRevision"
-                  ],
+                  "Action": ["codebuild:*"],
                   "Resource": "*",
                   "Effect": "Allow"
                 },
@@ -98,6 +95,34 @@
             }
           }
         ]
+      }
+    },
+    "CodeBuildProject": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Artifacts": {
+          "Type": "no_artifacts"
+        },
+        "Environment": {
+          "Type": "LINUX_CONTAINER",
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/nodejs:8.11.0"
+        },
+        "ServiceRole": { "Ref": "PipelineRole" },
+        "Source": {
+          "Location": {
+            "Fn::Join": [
+              "/",
+              [
+                {
+                  "Ref": "Bucket"
+                },
+                "aws-cicd-pipeline-Pi/MyApp"
+              ]
+            ]
+          },
+          "Type": "S3"
+        }
       }
     },
     "Pipeline": {
@@ -140,7 +165,7 @@
                 "Configuration": {
                   "BranchName": "master",
                   "RepositoryName": {
-                    "Ref": "Repository"
+                    "Fn::GetAtt": ["Repository", "Name"]
                   }
                 },
                 "RunOrder": 1
@@ -164,7 +189,7 @@
                   "Provider": "CodeBuild"
                 },
                 "Configuration": {
-                  "ProjectName": "aws-cicd-pipeline-build"
+                  "ProjectName": { "Ref": "CodeBuildProject" }
                 },
                 "OutputArtifacts": [],
                 "RunOrder": 1
