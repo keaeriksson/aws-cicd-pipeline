@@ -27,6 +27,7 @@
     "PipelineRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
+        "RoleName": "aws-cicd-pipeline-role",
         "AssumeRolePolicyDocument": {
           "Statement": [
             {
@@ -105,6 +106,7 @@
     "CodeBuildProject": {
       "Type": "AWS::CodeBuild::Project",
       "Properties": {
+        "Name": "aws-cicd-pipeline-codebuild-project",
         "Artifacts": {
           "Type": "no_artifacts"
         },
@@ -122,7 +124,8 @@
                 {
                   "Ref": "Bucket"
                 },
-                "aws-cicd-pipeline-Pi/MyApp"
+                "aws-cicd-pipeline",
+                "my-app"
               ]
             ]
           },
@@ -134,6 +137,7 @@
       "Type": "AWS::CodePipeline::Pipeline",
       "DependsOn": ["Repository"],
       "Properties": {
+        "Name": "aws-cicd-pipeline",
         "RoleArn": {
           "Fn::Join": [
             "",
@@ -164,7 +168,7 @@
                 },
                 "OutputArtifacts": [
                   {
-                    "Name": "MyApp"
+                    "Name": "my-app"
                   }
                 ],
                 "Configuration": {
@@ -183,7 +187,7 @@
               {
                 "InputArtifacts": [
                   {
-                    "Name": "MyApp"
+                    "Name": "my-app"
                   }
                 ],
                 "Name": "Build",
