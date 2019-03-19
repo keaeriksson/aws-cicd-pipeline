@@ -103,10 +103,10 @@
         ]
       }
     },
-    "CodeBuildProject": {
+    "ProductionCodeBuildProject": {
       "Type": "AWS::CodeBuild::Project",
       "Properties": {
-        "Name": "aws-cicd-pipeline-codebuild-project",
+        "Name": "aws-cicd-pipeline-codebuild-production",
         "Artifacts": {
           "Type": "no_artifacts"
         },
@@ -117,7 +117,38 @@
         },
         "ServiceRole": { "Ref": "PipelineRole" },
         "Source": {
-          "BuildSpec": "version: 0.2\r\nphases:\r\n  build:\r\n    commands:\r\n      - echo \"starting build\"\r\n      - ls\r\n      - npm install -g serverless\r\n",
+          "BuildSpec": "version: 0.2\r\nphases:\r\n  build:\r\n    commands:\r\n      - npm install -g serverless\r\n",
+          "Location": {
+            "Fn::Join": [
+              "/",
+              [
+                {
+                  "Ref": "Bucket"
+                },
+                "aws-cicd-pipeline",
+                "my-app"
+              ]
+            ]
+          },
+          "Type": "S3"
+        }
+      }
+    },
+    "StagingCodeBuildProject": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Name": "aws-cicd-pipeline-codebuild-staging",
+        "Artifacts": {
+          "Type": "no_artifacts"
+        },
+        "Environment": {
+          "Type": "LINUX_CONTAINER",
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/nodejs:8.11.0"
+        },
+        "ServiceRole": { "Ref": "PipelineRole" },
+        "Source": {
+          "BuildSpec": "version: 0.2\r\nphases:\r\n  build:\r\n    commands:\r\n      - npm install -g serverless\r\n",
           "Location": {
             "Fn::Join": [
               "/",
@@ -185,7 +216,7 @@
                   "Provider": "CodeBuild"
                 },
                 "Configuration": {
-                  "ProjectName": { "Ref": "CodeBuildProject" }
+                  "ProjectName": { "Ref": "StagingCodeBuildProject" }
                 },
                 "OutputArtifacts": [],
                 "RunOrder": 1
@@ -229,7 +260,7 @@
                   "Provider": "CodeBuild"
                 },
                 "Configuration": {
-                  "ProjectName": { "Ref": "CodeBuildProject" }
+                  "ProjectName": { "Ref": "ProductionCodeBuildProject" }
                 },
                 "OutputArtifacts": [],
                 "RunOrder": 1
