@@ -117,6 +117,7 @@
         },
         "ServiceRole": { "Ref": "PipelineRole" },
         "Source": {
+          "BuildSpec": "version: 0.2\r\nphases:\r\n  install:\r\n    commands:\r\n      - echo \"starting build\"\r\n      - ls\r\n      - npm install -g serverless\r\n",
           "Location": {
             "Fn::Join": [
               "/",
@@ -138,21 +139,7 @@
       "DependsOn": ["Repository"],
       "Properties": {
         "Name": "aws-cicd-pipeline",
-        "RoleArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:aws:iam::",
-              {
-                "Ref": "AWS::AccountId"
-              },
-              ":role/",
-              {
-                "Ref": "PipelineRole"
-              }
-            ]
-          ]
-        },
+        "RoleArn": { "Fn::GetAtt": ["PipelineRole", "Arn"] },
         "Stages": [
           {
             "Name": "Source",
@@ -182,7 +169,7 @@
             ]
           },
           {
-            "Name": "Build",
+            "Name": "Deploy",
             "Actions": [
               {
                 "InputArtifacts": [
@@ -190,7 +177,7 @@
                     "Name": "my-app"
                   }
                 ],
-                "Name": "Build",
+                "Name": "Deploy",
                 "ActionTypeId": {
                   "Category": "Build",
                   "Owner": "AWS",
@@ -208,9 +195,7 @@
         ],
         "ArtifactStore": {
           "Type": "S3",
-          "Location": {
-            "Ref": "Bucket"
-          }
+          "Location": { "Ref": "Bucket" }
         }
       }
     }
