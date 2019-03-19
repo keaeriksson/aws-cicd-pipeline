@@ -117,7 +117,7 @@
         },
         "ServiceRole": { "Ref": "PipelineRole" },
         "Source": {
-          "BuildSpec": "version: 0.2\r\nphases:\r\n  install:\r\n    commands:\r\n      - echo \"starting build\"\r\n      - ls\r\n      - npm install -g serverless\r\n",
+          "BuildSpec": "version: 0.2\r\nphases:\r\n  build:\r\n    commands:\r\n      - echo \"starting build\"\r\n      - ls\r\n      - npm install -g serverless\r\n",
           "Location": {
             "Fn::Join": [
               "/",
@@ -169,7 +169,7 @@
             ]
           },
           {
-            "Name": "Deploy",
+            "Name": "Staging",
             "Actions": [
               {
                 "InputArtifacts": [
@@ -177,7 +177,51 @@
                     "Name": "my-app"
                   }
                 ],
-                "Name": "Deploy",
+                "Name": "Staging",
+                "ActionTypeId": {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Version": "1",
+                  "Provider": "CodeBuild"
+                },
+                "Configuration": {
+                  "ProjectName": { "Ref": "CodeBuildProject" }
+                },
+                "OutputArtifacts": [],
+                "RunOrder": 1
+              }
+            ]
+          },
+          {
+            "Name": "GoLiveDecision",
+            "Actions": [
+              {
+                "InputArtifacts": [],
+                "Name": "GoLiveDecision",
+                "ActionTypeId": {
+                  "Category": "Approval",
+                  "Owner": "AWS",
+                  "Version": "1",
+                  "Provider": "Manual"
+                },
+                "OutputArtifacts": [],
+                "Configuration": {
+                  "CustomData": "Approval or Reject this change for production"
+                },
+                "RunOrder": 1
+              }
+            ]
+          },
+          {
+            "Name": "Production",
+            "Actions": [
+              {
+                "InputArtifacts": [
+                  {
+                    "Name": "my-app"
+                  }
+                ],
+                "Name": "Staging",
                 "ActionTypeId": {
                   "Category": "Build",
                   "Owner": "AWS",
