@@ -237,7 +237,7 @@
                 },
                 "OutputArtifacts": [],
                 "Configuration": {
-                  "CustomData": "Approval or Reject this change for production"
+                  "CustomData": "Approve or Reject this change for production"
                 },
                 "RunOrder": 1
               }
